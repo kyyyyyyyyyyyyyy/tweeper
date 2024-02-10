@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Like;
 use App\Models\Tweet;
 use App\Models\Comment;
 use Illuminate\Http\Request;
@@ -16,16 +17,24 @@ class TweetController extends Controller
      */
     public function index()
     {
+        
         $tweets = Tweet::latest()->get();
-    
-        // Ambil jumlah komentar untuk setiap tweet
+
+        // Ambil jumlah komentar dan suka untuk setiap tweet
         $commentCounts = DB::table('comments')
             ->select('tweet_id', DB::raw('count(*) as comment_count'))
             ->groupBy('tweet_id')
             ->get()
             ->pluck('comment_count', 'tweet_id');
-    
-        return view('tweeper', compact('tweets', 'commentCounts'));
+        
+        $likeCounts = DB::table('likes')
+            ->select('tweet_id', DB::raw('count(*) as like_count'))
+            ->groupBy('tweet_id')
+            ->get()
+            ->pluck('like_count', 'tweet_id');
+        
+        return view('dashboard', compact('tweets', 'commentCounts', 'likeCounts'));
+        
     }
 
     /**
@@ -64,11 +73,23 @@ class TweetController extends Controller
     public function show($id)
     {
         $tweet = Tweet::find($id);
-        return view ('post',
-        ['tweet' => $tweet],
-        ['comments' => Comment::where('tweet_id', $id)->latest()->get()]
-    );
+    
+        $comments = Comment::where('tweet_id', $id)->latest()->get();
+    
+        $commentCounts = Comment::select('tweet_id', DB::raw('count(*) as comment_count'))
+            ->groupBy('tweet_id')
+            ->get()
+            ->pluck('comment_count', 'tweet_id');
+    
+        $likeCounts = Like::select('tweet_id', DB::raw('count(*) as like_count'))
+            ->groupBy('tweet_id')
+            ->get()
+            ->pluck('like_count', 'tweet_id');
+    
+        return view('post')->with(compact('tweet', 'comments', 'commentCounts', 'likeCounts'));
     }
+    
+
 
     /**
      * Show the form for editing the specified resource.
@@ -78,9 +99,19 @@ class TweetController extends Controller
      */
     public function edit($id)
     {
-        return view ('comment', [
-            'tweet' => Tweet::find($id)
-        ]);
+        $tweet = Tweet::find($id);
+        
+        $commentCounts = Comment::select('tweet_id', DB::raw('count(*) as comment_count'))
+            ->groupBy('tweet_id')
+            ->get()
+            ->pluck('comment_count', 'tweet_id');
+    
+        $likeCounts = Like::select('tweet_id', DB::raw('count(*) as like_count'))
+            ->groupBy('tweet_id')
+            ->get()
+            ->pluck('like_count', 'tweet_id');
+    
+        return view('comment')->with(compact('tweet', 'commentCounts', 'likeCounts'));
     }
 
     /**

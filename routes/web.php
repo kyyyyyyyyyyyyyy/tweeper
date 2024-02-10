@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TweetController;
 use App\Http\Controllers\CommentController;
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('tweets', TweetController::class);
     Route::resource('comments', CommentController::class);
     Route::resource('users', UserController::class);
+    Route::resource('liked', LikeController::class);
 });
 
 // ... (Bagian lain tidak berubah)

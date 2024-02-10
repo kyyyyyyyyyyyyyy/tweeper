@@ -1,3 +1,7 @@
+
+@if(request()->routeIs('tweets.edit'))
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+
     <div class="col-2">
         {{-- <img src="https://via.placeholder.com/50" alt="User Avatar" class="rounded-circle tweet-avatar"> --}}
         @if(!empty($tweet->user->image))
@@ -16,19 +20,30 @@
         <p>{{ $tweet->content }}</p>
         <div class="row">
             <div class="col-4">
-                <a href="tweets/{{ $tweet->id }}" class="like-button"><i class="bi bi-heart"></i> 125</a>
+                <form action="{{ route('liked.store') }}" method="post">
+                    @csrf
+                    <input type="hidden" name="tweet_id" value="{{ $tweet->id }}">
+                    <button class="btn btn-link">
+                        @if(isset($likeCounts[$tweet->id]) && $likeCounts[$tweet->id] > 0)
+                        <i class="bi bi-heart-fill"></i>
+                        @else
+                        <i class="bi bi-heart"></i>
+                        @endif
+                        {{ $likeCounts[$tweet->id] ?? 0 }} 
+                    </button>
+                </form>
             </div>
             <div class="col-4">
-                <a href="tweets/{{ $tweet->id }}/edit"><i class="bi bi-chat"></i> {{ $commentCounts[$tweet->id] ?? 0 }}</a>
+                <i class="bi bi-chat"></i> {{ $commentCounts[$tweet->id] ?? 0 }}
             </div>
         </div>
     </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
+@else
 
-    function redirectToDetail(tweetId) {
-        window.location.href = `/tweets/${tweetId}`;
-    };
+    @if(request()->routeIs('dashboard'))
+    
 
-</script>
+    @endif
+
+@endif

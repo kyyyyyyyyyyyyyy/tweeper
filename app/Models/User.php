@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Like;
 use App\Models\Tweet;
 use App\Models\Comment;
 use Laravel\Sanctum\HasApiTokens;
@@ -43,6 +44,16 @@ class User extends Authenticatable
     public function comments() 
     {
         return $this->belongsTo(Comment::class);
+    }
+
+    public function likes() 
+    {
+        return $this->hasMany(Like::class);
+    } 
+
+    public function hasLiked($item)
+    {
+        return $this->likes()->where('tweet_id', $item->id)->exists();
     }
 
     /**
